@@ -2,12 +2,14 @@ extern crate gtk;
 extern crate gio;
 extern crate umwerter;
 
-
-use gtk::prelude::*;
-use gtk::*;
 use gio::{ApplicationExt, ApplicationExtManual };
 
-use gtk::MenuItemExt;
+use gtk::prelude::*;
+use gtk::{
+    MenuItem, Grid, Label, ComboBoxText, TextView, TextBuffer, ScrolledWindow,
+    MenuBar, Menu, RadioButton, ApplicationWindow, WindowPosition, CheckMenuItem, Entry, LinkButton
+};
+
 use std::sync::{Arc, Mutex};
 use std::env::args;
 
