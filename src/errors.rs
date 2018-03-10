@@ -8,9 +8,9 @@ error_chain!{
     }
 
     errors {
-        QuellEinheitNichtVorhanden(t : String) {}            
+        QuellEinheitNichtVorhanden(t : String) {}
         ZielEinheitNichtVorhanden(t : String) {}
-        
+
         QuellWertAusserhalbUmwertungsnorm(wert : f64) {}
         ZielWertAusserhalbUmwertungsnorm(wert : f64) {}
 
