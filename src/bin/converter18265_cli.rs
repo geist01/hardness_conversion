@@ -114,7 +114,7 @@ fn convert(config : Config) {
                     
                 },
                 &ErrorKind::QuellEinheitNichtVorhanden(ref unit) | &ErrorKind::ZielEinheitNichtVorhanden(ref unit) => {
-                    eprintln!("Source or Destintation Unit {0} unknown", unit);
+                    eprintln!("Source or Destination Unit {0} unknown", unit);
                     std::process::exit(4);
                 }
                 _ => {}, 

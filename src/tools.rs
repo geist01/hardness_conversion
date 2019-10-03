@@ -15,7 +15,7 @@ lazy_static! {
     static ref RE: Regex = Regex::new(r"[\(\)]").unwrap();
 }
 
-pub fn bestimme_tabelle<'a>(tabelle: &'a UmwertungsTabelle) -> Result<Box<Umwerter<'a> + 'a>> {
+pub fn bestimme_tabelle<'a>(tabelle: &'a UmwertungsTabelle) -> Result<Box<dyn Umwerter<'a> + 'a>> {
     match tabelle {
         &UmwertungsTabelle::Iso18265A1 => {
             let trait_tabelle = UmwerterTabelle18265A1::new()?;
@@ -62,7 +62,7 @@ fn parse_element(element: &str) -> Result<f64> {
     Ok(RE.replace_all(x.as_str(), "").parse::<f64>()?)
 }
 
-fn kleinstes_element(umwerter: &Umwerter, einheit: &str) -> (f64, usize) {
+fn kleinstes_element(umwerter: &dyn Umwerter, einheit: &str) -> (f64, usize) {
     let mut wert = 100000.0;
     let mut zeile = 0;
 
@@ -78,7 +78,7 @@ fn kleinstes_element(umwerter: &Umwerter, einheit: &str) -> (f64, usize) {
     (wert, zeile)
 }
 
-fn groesstes_element(umwerter: &Umwerter, einheit: &str) -> (f64, usize) {
+fn groesstes_element(umwerter: &dyn Umwerter, einheit: &str) -> (f64, usize) {
     let mut wert = 0.0;
     let mut zeile = 0;
 
@@ -95,8 +95,9 @@ fn groesstes_element(umwerter: &Umwerter, einheit: &str) -> (f64, usize) {
 }
 
 pub fn bestimme_naeherung(
-    umwerter: &Umwerter,
+    umwerter: &dyn Umwerter,
     quell_einheit: &str,
+    ziel_einheit: &str,
     wert: f64,
 ) -> Result<(f64, usize, f64, usize)> {
     let (mut ausgangsbereich_unten, mut zeile_untere_naeherung) =
@@ -110,7 +111,8 @@ pub fn bestimme_naeherung(
     }
 
     for i in 0..umwerter.data().len() {
-        if let Some(w) = umwerter.data()[i].get(quell_einheit) {
+        if umwerter.data()[i].get(quell_einheit).is_some() && umwerter.data()[i].get(ziel_einheit).is_some() {
+            let w = umwerter.data()[i].get(quell_einheit).unwrap();
             if *w < wert {
                 zeile_untere_naeherung = i;
                 ausgangsbereich_unten = *w;

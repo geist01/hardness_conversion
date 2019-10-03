@@ -51,7 +51,7 @@ pub fn werte_um<'a>(
     };
 
     let (naeherung_unten_wert, zeile_unten_wert, naeherung_oben_wert, zeile_oben_wert) =
-        tools::bestimme_naeherung(&mut *trait_tabelle, interne_source_einheit, wert)?;
+        tools::bestimme_naeherung(&mut *trait_tabelle, interne_source_einheit, interne_ziel_einheit, wert)?;
 
     if naeherung_oben_wert == naeherung_unten_wert && naeherung_unten_wert == 0.0 {
         return Err(ErrorKind::QuellWertAusserhalbUmwertungsnorm(wert).into());

@@ -6,10 +6,7 @@ authors = ["Ingo Buescher <gallatin@gmx.net>"]
 [dependencies]
 clap = "*"
 
-csv = "1.0.0-beta.5"
-#regex = "0.2"
-#lazy_static = "0.2.8"
-#error-chain = "0.11.0"
+csv = "1.0.0"
 
 regex = "*"
 lazy_static = "*"
