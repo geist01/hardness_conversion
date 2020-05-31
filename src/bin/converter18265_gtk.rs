@@ -1,7 +1,3 @@
-extern crate gtk;
-extern crate gio;
-extern crate umwerter;
-
 use gio::{ApplicationExt, ApplicationExtManual };
 
 use gtk::prelude::*;
@@ -14,7 +10,7 @@ use std::sync::{Arc, Mutex};
 use std::env::args;
 
 use umwerter::konstanten::UmwertungsTabelle;
-use umwerter::errors::*;
+use umwerter::errors::UmwerterError;
 
 
 macro_rules! clone {
@@ -195,10 +191,9 @@ impl Content {
                         }
                     },
                     Err(e) => {
-                        match e.kind() {
-                            &ErrorKind::Msg(ref s) => println!("msg: {}", s),
-                            &ErrorKind::QuellWertAusserhalbUmwertungsnorm(wert) |
-                            &ErrorKind::ZielWertAusserhalbUmwertungsnorm(wert) =>
+                        match e {
+                            UmwerterError::QuellWertAusserhalbUmwertungsnorm(wert) |
+                            UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert) =>
                                 content.set_text(&format!("Conversion {0} {1} -> {2} not defined", wert,
                                                           &cb_source_units_value.get_active_text().unwrap(),
                                                           &cb_destination_units_value.get_active_text().unwrap())),

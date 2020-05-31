@@ -1,16 +1,16 @@
-use trait_umwerter::Umwerter;
+use crate::Umwerter;
 use std::collections::HashMap;
 use std::vec::Vec;
 
-use tools;
-use errors::*;
+use crate::tools;
+use crate::errors::UmwerterError;
 
 pub struct UmwerterTabelle18265A1<'a> {
     daten: Vec<HashMap<&'a str, f64>>,
 }
 
 impl<'a> UmwerterTabelle18265A1<'a> {
-    pub fn new() -> Result<UmwerterTabelle18265A1<'a>> {
+    pub fn new() -> Result<UmwerterTabelle18265A1<'a>,UmwerterError> {
         let mut tabelle = UmwerterTabelle18265A1 { daten: Vec::new() };
         let csv_data = include_str!("18265_A1.csv");
         tools::initialize(&tabelle.interne_einheiten(), &mut tabelle.daten, csv_data)?;

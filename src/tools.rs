@@ -1,21 +1,19 @@
-extern crate csv;
-extern crate regex;
-
 use std::collections::HashMap;
 use std::vec::Vec;
-use self::regex::Regex;
+use regex::Regex;
 
-use umwerter_tabelle_18265_a1::UmwerterTabelle18265A1;
-use umwerter_tabelle_18265_b2::UmwerterTabelle18265B2;
-use konstanten::UmwertungsTabelle;
-use Umwerter;
-use errors::*;
+use crate::umwerter_tabelle_18265_a1::UmwerterTabelle18265A1;
+use crate::umwerter_tabelle_18265_b2::UmwerterTabelle18265B2;
+use crate::konstanten::UmwertungsTabelle;
+use crate::Umwerter;
+use crate::UmwerterError;
 
+use lazy_static::lazy_static;
 lazy_static! {
     static ref RE: Regex = Regex::new(r"[\(\)]").unwrap();
 }
 
-pub fn bestimme_tabelle<'a>(tabelle: &'a UmwertungsTabelle) -> Result<Box<dyn Umwerter<'a> + 'a>> {
+pub fn bestimme_tabelle<'a>(tabelle: &'a UmwertungsTabelle) -> Result<Box<dyn Umwerter<'a> + 'a>,UmwerterError> {
     match tabelle {
         &UmwertungsTabelle::Iso18265A1 => {
             let trait_tabelle = UmwerterTabelle18265A1::new()?;
@@ -32,7 +30,7 @@ pub fn initialize<'a>(
     einheiten: &Vec<&'a str>,
     daten: &mut Vec<HashMap<&'a str, f64>>,
     csv_data: &'static str,
-) -> Result<()> {
+) -> Result<(),UmwerterError> {
     let mut rdr = csv::ReaderBuilder::new()
         .delimiter(b'\t')
         .flexible(true)
@@ -57,7 +55,7 @@ pub fn initialize<'a>(
     Ok(())
 }
 
-fn parse_element(element: &str) -> Result<f64> {
+fn parse_element(element: &str) -> Result<f64,UmwerterError> {
     let x = str::replace(element, ",", ".");
     Ok(RE.replace_all(x.as_str(), "").parse::<f64>()?)
 }
@@ -99,7 +97,7 @@ pub fn bestimme_naeherung(
     quell_einheit: &str,
     ziel_einheit: &str,
     wert: f64,
-) -> Result<(f64, usize, f64, usize)> {
+) -> Result<(f64, usize, f64, usize),UmwerterError> {
     let (mut ausgangsbereich_unten, mut zeile_untere_naeherung) =
         kleinstes_element(umwerter, quell_einheit);
     let (mut ausgangsbereich_oben, mut zeile_obere_naeherung) =
@@ -107,7 +105,7 @@ pub fn bestimme_naeherung(
 
     // println!("unten {0}, oben {1}", ausgangsbereich_unten, ausgangsbereich_oben);
     if wert < ausgangsbereich_unten || wert > ausgangsbereich_oben {
-        return Err(ErrorKind::QuellWertAusserhalbUmwertungsnorm(wert).into());
+        return Err(UmwerterError::QuellWertAusserhalbUmwertungsnorm(wert).into());
     }
 
     for i in 0..umwerter.data().len() {

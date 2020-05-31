@@ -2,6 +2,7 @@
 name = "umwerter"
 version = "0.1.0"
 authors = ["Ingo Buescher <gallatin@gmx.net>"]
+edition = "2018"
 
 [dependencies]
 clap = "*"
@@ -10,7 +11,9 @@ csv = "1.0.0"
 
 regex = "*"
 lazy_static = "*"
-error-chain = "*"
+#error-chain = "*"
+thiserror = "1.0.19"
+anyhow = "1.0"
 
 gtk = { version = "0.3.0", features = ["v3_22"] }
 gio = "0.3.0"

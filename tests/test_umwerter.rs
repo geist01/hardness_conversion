@@ -1,5 +1,3 @@
-extern crate umwerter;
-
 use umwerter::konstanten;
 use umwerter::errors;
 
@@ -11,19 +9,19 @@ fn umwerter_18265_a1() {
 
     erg = umwerter::werte_um(260f64, "MPa", "HRF", &konstanten::UmwertungsTabelle::Iso18265A1);
     assert!(erg.is_err());
-    assert!(match erg.unwrap_err().kind() { &errors::ErrorKind::ZielWertAusserhalbUmwertungsnorm(_) => true, _ => false });
+    assert!(match erg.unwrap_err() { errors::UmwerterError::ZielWertAusserhalbUmwertungsnorm(_) => true, _ => false });
 
     erg = umwerter::werte_um(200f64, "MPa", "HV 10", &konstanten::UmwertungsTabelle::Iso18265A1);
     assert!(erg.is_err());
-    assert!(match erg.unwrap_err().kind() { &errors::ErrorKind::QuellWertAusserhalbUmwertungsnorm(_) => true, _ => false });
+    assert!(match erg.unwrap_err() { errors::UmwerterError::QuellWertAusserhalbUmwertungsnorm(_) => true, _ => false });
 
     erg = umwerter::werte_um(200f64, "XXX", "HV 10", &konstanten::UmwertungsTabelle::Iso18265A1);
     assert!(erg.is_err());
-    assert!(match erg.unwrap_err().kind() { &errors::ErrorKind::QuellEinheitNichtVorhanden(_) => true, _ => false });
+    assert!(match erg.unwrap_err() { errors::UmwerterError::QuellEinheitNichtVorhanden(_) => true, _ => false });
 
     erg = umwerter::werte_um(200f64, "MPa", "XXX", &konstanten::UmwertungsTabelle::Iso18265A1);
     assert!(erg.is_err());
-    assert!(match erg.unwrap_err().kind() { &errors::ErrorKind::ZielEinheitNichtVorhanden(_) => true, _ => false });
+    assert!(match erg.unwrap_err() { errors::UmwerterError::ZielEinheitNichtVorhanden(_) => true, _ => false });
 
 }
 

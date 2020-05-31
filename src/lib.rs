@@ -1,20 +1,14 @@
-#[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
-extern crate error_chain;
-
 mod trait_umwerter;
 mod umwerter_tabelle_18265_a1;
 mod umwerter_tabelle_18265_b2;
 mod tools;
+
+use konstanten::UmwertungsTabelle;
+use trait_umwerter::Umwerter;
+use errors::UmwerterError;
+
 pub mod errors;
 pub mod konstanten;
-use konstanten::UmwertungsTabelle;
-
-use trait_umwerter::Umwerter;
-
-use errors::*;
 
 pub fn bestimme_einheiten<'a>(tabelle: &'a UmwertungsTabelle) -> Vec<&'a str> {
     let umwerter_trait = tools::bestimme_tabelle(tabelle).unwrap();
@@ -26,7 +20,7 @@ pub fn werte_um<'a>(
     externe_source_einheit: &str,
     externe_ziel_einheit: &str,
     tabelle: &'a UmwertungsTabelle,
-) -> Result<f64> {
+) -> Result<f64, UmwerterError> {
     if externe_source_einheit == externe_ziel_einheit {
         return Ok(wert);
     }
@@ -36,7 +30,7 @@ pub fn werte_um<'a>(
         Some(einheit) => einheit,
         None => {
             return Err(
-                ErrorKind::QuellEinheitNichtVorhanden(externe_source_einheit.to_string()).into(),
+                UmwerterError::QuellEinheitNichtVorhanden(externe_source_einheit.to_string()).into(),
             )
         }
     };
@@ -45,7 +39,7 @@ pub fn werte_um<'a>(
         Some(einheit) => einheit,
         None => {
             return Err(
-                ErrorKind::ZielEinheitNichtVorhanden(externe_ziel_einheit.to_string()).into(),
+                UmwerterError::ZielEinheitNichtVorhanden(externe_ziel_einheit.to_string()).into(),
             )
         }
     };
@@ -54,25 +48,25 @@ pub fn werte_um<'a>(
         tools::bestimme_naeherung(&mut *trait_tabelle, interne_source_einheit, interne_ziel_einheit, wert)?;
 
     if naeherung_oben_wert == naeherung_unten_wert && naeherung_unten_wert == 0.0 {
-        return Err(ErrorKind::QuellWertAusserhalbUmwertungsnorm(wert).into());
+        return Err(UmwerterError::QuellWertAusserhalbUmwertungsnorm(wert).into());
     }
 
     let data = trait_tabelle.data();
     if zeile_unten_wert == zeile_oben_wert {
         match data[zeile_oben_wert].get(interne_ziel_einheit) {
             Some(w) => return Ok(*w),
-            None => return Err(ErrorKind::ZielWertAusserhalbUmwertungsnorm(wert).into()),
+            None => return Err(UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert).into()),
         }
     }
 
     let ziel_oben_wert = match data[zeile_oben_wert].get(interne_ziel_einheit) {
         Some(w) => *w,
-        None => return Err(ErrorKind::ZielWertAusserhalbUmwertungsnorm(wert).into()),
+        None => return Err(UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert).into()),
     };
 
     let ziel_unten_wert = match data[zeile_unten_wert].get(interne_ziel_einheit) {
         Some(w) => *w,
-        None => return Err(ErrorKind::ZielWertAusserhalbUmwertungsnorm(wert).into()),
+        None => return Err(UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert).into()),
     };
 
     Ok(

@@ -1,8 +1,8 @@
-extern crate umwerter;
-use umwerter::errors::*;
 use umwerter::konstanten;
+use umwerter::errors::UmwerterError;
 
-extern crate clap;
+use anyhow::Result;
+
 struct Config {
     source_unit : Option<String>,
     destination_unit : Option<String>,
@@ -12,7 +12,7 @@ struct Config {
     list : bool,
 }
 
-fn read_config() -> Result<Config> {
+fn read_config() -> Result<Config,UmwerterError> {
     use clap::{Arg, App};
     
     let matches = App::new("Hardness Converter 18265")
@@ -60,7 +60,7 @@ fn read_config() -> Result<Config> {
     let table = konstanten::UmwertungsTabelle::kurzbezeichner_to_enum(matches.value_of("table").unwrap_or(konstanten::A1));
     
     if let None = table {
-        return Err(ErrorKind::UmwertungstabelleUnbekannt(matches.value_of("table").unwrap().to_string()).into());
+        return Err(UmwerterError::UmwertungstabelleUnbekannt(matches.value_of("table").unwrap().to_string()).into());
     }
 
     let mut value:Option<f64> = None;
@@ -105,15 +105,14 @@ fn convert(config : Config) {
         },
         
         Err(e) => {
-            match e.kind() {
-                &ErrorKind::Msg(ref s) => eprintln!("msg: {}", s),
-                &ErrorKind::QuellWertAusserhalbUmwertungsnorm(wert) |
-                &ErrorKind::ZielWertAusserhalbUmwertungsnorm(wert) => {
+            match e {
+                UmwerterError::QuellWertAusserhalbUmwertungsnorm(wert) |
+                UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert) => {
                     eprintln!("Conversion {0} {1} -> {2} not defined", wert, &source_unit, &destination_unit);
                     std::process::exit(3);
                     
                 },
-                &ErrorKind::QuellEinheitNichtVorhanden(ref unit) | &ErrorKind::ZielEinheitNichtVorhanden(ref unit) => {
+                UmwerterError::QuellEinheitNichtVorhanden(ref unit) | UmwerterError::ZielEinheitNichtVorhanden(ref unit) => {
                     eprintln!("Source or Destination Unit {0} unknown", unit);
                     std::process::exit(4);
                 }
@@ -128,12 +127,12 @@ fn main() {
 
     match config {
         Err(e) => {
-            match e.kind() {
-                &ErrorKind::ParseError(ref _e) => {
+            match e {
+                UmwerterError::ParseError(ref _e) => {
                     eprintln!("Invalid value - please enter a floating point number");
                     std::process::exit(1);
                 },
-                &ErrorKind::UmwertungstabelleUnbekannt(ref table) => {
+                UmwerterError::UmwertungstabelleUnbekannt(ref table) => {
                     eprintln!("Conversion table {0} unknown", table);
                     std::process::exit(2);
                 },

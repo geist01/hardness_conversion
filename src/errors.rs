@@ -1,20 +1,26 @@
-extern crate csv;
+use thiserror::Error;
 
-error_chain!{
-    foreign_links {
-        Io(::std::io::Error);
-        CsvError(csv::Error);
-        ParseError(::std::num::ParseFloatError);
-    }
+#[derive(Error, Debug)]
+pub enum UmwerterError {
+    #[error("IO")]
+    Io(#[from] ::std::io::Error),
 
-    errors {
-        QuellEinheitNichtVorhanden(t : String) {}
-        ZielEinheitNichtVorhanden(t : String) {}
+    #[error("IO")]
+    CsvError(#[from] csv::Error),
+    #[error("IO")]
+    ParseError(#[from] ::std::num::ParseFloatError),
 
-        QuellWertAusserhalbUmwertungsnorm(wert : f64) {}
-        ZielWertAusserhalbUmwertungsnorm(wert : f64) {}
+    #[error("IO")]
+    QuellEinheitNichtVorhanden(String),
+    
+    #[error("IO")]
+    ZielEinheitNichtVorhanden(String),
 
-        UmwertungstabelleUnbekannt(t : String) {}
-    }
+    #[error("IO")]
+    QuellWertAusserhalbUmwertungsnorm(f64),
+    #[error("IO")]
+    ZielWertAusserhalbUmwertungsnorm(f64),
 
+    #[error("IO")]
+    UmwertungstabelleUnbekannt(String),
 }
