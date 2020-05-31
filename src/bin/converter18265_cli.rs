@@ -59,8 +59,8 @@ fn read_config() -> Result<Config,UmwerterError> {
     let destination_unit = matches.value_of("destinationunit").map(|s| s.to_string());
     let table = konstanten::UmwertungsTabelle::kurzbezeichner_to_enum(matches.value_of("table").unwrap_or(konstanten::A1));
     
-    if let None = table {
-        return Err(UmwerterError::UmwertungstabelleUnbekannt(matches.value_of("table").unwrap().to_string()).into());
+    if table.is_none() {
+        return Err(UmwerterError::UmwertungstabelleUnbekannt(matches.value_of("table").unwrap().to_string()));
     }
 
     let mut value:Option<f64> = None;

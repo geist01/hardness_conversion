@@ -25,12 +25,12 @@ pub fn werte_um<'a>(
         return Ok(wert);
     }
 
-    let mut trait_tabelle = tools::bestimme_tabelle(&tabelle)?;
+    let trait_tabelle = tools::bestimme_tabelle(&tabelle)?;
     let interne_source_einheit = match trait_tabelle.konvert_einheit(externe_source_einheit) {
         Some(einheit) => einheit,
         None => {
             return Err(
-                UmwerterError::QuellEinheitNichtVorhanden(externe_source_einheit.to_string()).into(),
+                UmwerterError::QuellEinheitNichtVorhanden(externe_source_einheit.to_string()),
             )
         }
     };
@@ -39,34 +39,34 @@ pub fn werte_um<'a>(
         Some(einheit) => einheit,
         None => {
             return Err(
-                UmwerterError::ZielEinheitNichtVorhanden(externe_ziel_einheit.to_string()).into(),
+                UmwerterError::ZielEinheitNichtVorhanden(externe_ziel_einheit.to_string()),
             )
         }
     };
 
     let (naeherung_unten_wert, zeile_unten_wert, naeherung_oben_wert, zeile_oben_wert) =
-        tools::bestimme_naeherung(&mut *trait_tabelle, interne_source_einheit, interne_ziel_einheit, wert)?;
+        tools::bestimme_naeherung(& *trait_tabelle, interne_source_einheit, interne_ziel_einheit, wert)?;
 
-    if naeherung_oben_wert == naeherung_unten_wert && naeherung_unten_wert == 0.0 {
-        return Err(UmwerterError::QuellWertAusserhalbUmwertungsnorm(wert).into());
+    if (naeherung_oben_wert - naeherung_unten_wert).abs() < std::f64::EPSILON && naeherung_unten_wert == 0.0 {
+        return Err(UmwerterError::QuellWertAusserhalbUmwertungsnorm(wert));
     }
 
     let data = trait_tabelle.data();
     if zeile_unten_wert == zeile_oben_wert {
         match data[zeile_oben_wert].get(interne_ziel_einheit) {
             Some(w) => return Ok(*w),
-            None => return Err(UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert).into()),
+            None => return Err(UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert)),
         }
     }
 
     let ziel_oben_wert = match data[zeile_oben_wert].get(interne_ziel_einheit) {
         Some(w) => *w,
-        None => return Err(UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert).into()),
+        None => return Err(UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert)),
     };
 
     let ziel_unten_wert = match data[zeile_unten_wert].get(interne_ziel_einheit) {
         Some(w) => *w,
-        None => return Err(UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert).into()),
+        None => return Err(UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert)),
     };
 
     Ok(

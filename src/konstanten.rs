@@ -1,8 +1,8 @@
-const A1_LANG: &'static str = "A.1 - XXXXXXX";
-const B2_LANG: &'static str = "B.2 - XXXXXXX";
+const A1_LANG: &str = "A.1 - XXXXXXX";
+const B2_LANG: &str = "B.2 - XXXXXXX";
 
-pub const A1: &'static str = "A.1";
-pub const B2: &'static str = "B.2";
+pub const A1: &str = "A.1";
+pub const B2: &str = "B.2";
 
 #[derive(Debug, Copy, Clone)]
 pub enum UmwertungsTabelle {

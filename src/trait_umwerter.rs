@@ -13,11 +13,8 @@ pub trait Umwerter<'a> {
             .enumerate()
             .find(|&einheit| *einheit.1 == externe_einheit)
         {
-            Some((index, _)) => {
-                return Some(self.interne_einheiten()[index]);
-            }
-
-            None => return None,
+            Some((index, _)) => Some(self.interne_einheiten()[index]),
+            None => None,
         }
     }
 }

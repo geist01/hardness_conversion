@@ -152,22 +152,22 @@ impl Content {
                 }
                 
                 let parse_ergebnis = eingabe.clone().unwrap().parse::<f64>();
-                if let Err(_) = parse_ergebnis {
+                if parse_ergebnis.is_err() {
                     content.set_text(&format!("Invalid value: {}", eingabe.unwrap()));
                     return;
                 }
 
-                if let None = cb_source_units_value.get_active_text() {
+                if cb_source_units_value.get_active_text().is_none() {
                     content.set_text("Please select source unit");
                     return;
                 }
             
-                if let None = cb_destination_units_value.get_active_text() {
+                if cb_destination_units_value.get_active_text().is_none() {
                     content.set_text("Please select destination unit");
                     return;
                 }
 
-                let umwerter_tabelle = (*current_umwerter.lock().unwrap()).clone();
+                let umwerter_tabelle = *current_umwerter.lock().unwrap();
                 match umwerter::werte_um(
                     parse_ergebnis.unwrap(),
                     &cb_source_units_value.get_active_text().unwrap(),
@@ -226,7 +226,7 @@ impl Content {
         container
     }
 
-    fn update_einheiten(cb : &ComboBoxText, einheiten : &Vec<&str>) {
+    fn update_einheiten(cb : &ComboBoxText, einheiten : &[&str]) {
         cb.remove_all();
         einheiten.iter().for_each(|s| {
             cb.append_text(s);

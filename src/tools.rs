@@ -14,12 +14,12 @@ lazy_static! {
 }
 
 pub fn bestimme_tabelle<'a>(tabelle: &'a UmwertungsTabelle) -> Result<Box<dyn Umwerter<'a> + 'a>,UmwerterError> {
-    match tabelle {
-        &UmwertungsTabelle::Iso18265A1 => {
+    match *tabelle {
+        UmwertungsTabelle::Iso18265A1 => {
             let trait_tabelle = UmwerterTabelle18265A1::new()?;
             Ok(Box::new(trait_tabelle))
         }
-        &UmwertungsTabelle::Iso18265B2 => {
+        UmwertungsTabelle::Iso18265B2 => {
             let trait_tabelle = UmwerterTabelle18265B2::new()?;
             Ok(Box::new(trait_tabelle))
         }
@@ -27,7 +27,7 @@ pub fn bestimme_tabelle<'a>(tabelle: &'a UmwertungsTabelle) -> Result<Box<dyn Um
 }
 
 pub fn initialize<'a>(
-    einheiten: &Vec<&'a str>,
+    einheiten: &[&'a str],
     daten: &mut Vec<HashMap<&'a str, f64>>,
     csv_data: &'static str,
 ) -> Result<(),UmwerterError> {
@@ -61,7 +61,7 @@ fn parse_element(element: &str) -> Result<f64,UmwerterError> {
 }
 
 fn kleinstes_element(umwerter: &dyn Umwerter, einheit: &str) -> (f64, usize) {
-    let mut wert = 100000.0;
+    let mut wert = 100_000.0;
     let mut zeile = 0;
 
     for i in 0..umwerter.data().len() {
@@ -105,7 +105,7 @@ pub fn bestimme_naeherung(
 
     // println!("unten {0}, oben {1}", ausgangsbereich_unten, ausgangsbereich_oben);
     if wert < ausgangsbereich_unten || wert > ausgangsbereich_oben {
-        return Err(UmwerterError::QuellWertAusserhalbUmwertungsnorm(wert).into());
+        return Err(UmwerterError::QuellWertAusserhalbUmwertungsnorm(wert));
     }
 
     for i in 0..umwerter.data().len() {
@@ -114,12 +114,14 @@ pub fn bestimme_naeherung(
             if *w < wert {
                 zeile_untere_naeherung = i;
                 ausgangsbereich_unten = *w;
-            } else if *w == wert {
+		
+            } else if (*w - wert).abs() < std::f64::EPSILON  {
                 zeile_untere_naeherung = i;
                 zeile_obere_naeherung = i;
                 ausgangsbereich_unten = *w;
                 ausgangsbereich_oben = *w;
                 break;
+		
             } else if *w > wert {
                 zeile_obere_naeherung = i;
                 ausgangsbereich_oben = *w;
