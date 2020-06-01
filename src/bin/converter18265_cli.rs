@@ -75,7 +75,7 @@ fn read_config() -> Result<Config,UmwerterError> {
 
 fn list_units(config : Config) {
     let bezeichner = konstanten::UmwertungsTabelle::enum_to_kurzbezeichner(config.table);
-    let einheiten = umwerter::bestimme_einheiten(&config.table).join(",");    
+    let einheiten = umwerter::bestimme_einheiten(config.table).join(",");
     println!("Available units in table {0}: {1}", bezeichner, einheiten);
 }
 
@@ -87,7 +87,7 @@ fn convert(config : Config) {
         config.value.unwrap(),
         &source_unit,
         &destination_unit,
-        &config.table
+        config.table
     ) {
         Ok(erg) => {
             if config.verbose {

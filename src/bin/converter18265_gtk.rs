@@ -110,7 +110,7 @@ impl Content {
                 let umwerter = UmwertungsTabelle::bezeichner_to_enum(&widget.get_label().unwrap()[..]);
                 if let Some(umwerter_trait) = umwerter {
                     {
-                        let einheiten = &umwerter::bestimme_einheiten(&umwerter_trait);
+                        let einheiten = &umwerter::bestimme_einheiten(umwerter_trait);
                         Content::update_einheiten(&cb_source_units_value, einheiten);
                         Content::update_einheiten(&cb_destination_units_value, einheiten);
                     }
@@ -125,7 +125,7 @@ impl Content {
             row += 1;
         }
 
-        let einheiten = &umwerter::bestimme_einheiten(&UmwertungsTabelle::Iso18265A1);
+        let einheiten = &umwerter::bestimme_einheiten(UmwertungsTabelle::Iso18265A1);
         Content::update_einheiten(&cb_source_units_value, einheiten);
         Content::update_einheiten(&cb_destination_units_value, einheiten);
 
@@ -172,7 +172,7 @@ impl Content {
                     parse_ergebnis.unwrap(),
                     &cb_source_units_value.get_active_text().unwrap(),
                     &cb_destination_units_value.get_active_text().unwrap(),
-                    &umwerter_tabelle
+                    umwerter_tabelle
                 ) {
                     Ok(erg) => {
                         let bezeichner = UmwertungsTabelle::enum_to_kurzbezeichner(umwerter_tabelle);

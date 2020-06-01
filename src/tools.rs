@@ -13,8 +13,8 @@ lazy_static! {
     static ref RE: Regex = Regex::new(r"[\(\)]").unwrap();
 }
 
-pub fn bestimme_tabelle<'a>(tabelle: &'a UmwertungsTabelle) -> Result<Box<dyn Umwerter<'a> + 'a>,UmwerterError> {
-    match *tabelle {
+pub fn bestimme_tabelle<'a>(tabelle: UmwertungsTabelle) -> Result<Box<dyn Umwerter<'a> + 'a>,UmwerterError> {
+    match tabelle {
         UmwertungsTabelle::Iso18265A1 => {
             let trait_tabelle = UmwerterTabelle18265A1::new()?;
             Ok(Box::new(trait_tabelle))

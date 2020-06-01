@@ -10,22 +10,22 @@ use errors::UmwerterError;
 pub mod errors;
 pub mod konstanten;
 
-pub fn bestimme_einheiten<'a>(tabelle: &'a UmwertungsTabelle) -> Vec<&'a str> {
+pub fn bestimme_einheiten<'a>(tabelle: UmwertungsTabelle) -> Vec<&'a str> {
     let umwerter_trait = tools::bestimme_tabelle(tabelle).unwrap();
     umwerter_trait.externe_einheiten()
 }
 
-pub fn werte_um<'a>(
+pub fn werte_um(
     wert: f64,
     externe_source_einheit: &str,
     externe_ziel_einheit: &str,
-    tabelle: &'a UmwertungsTabelle,
+    tabelle: UmwertungsTabelle,
 ) -> Result<f64, UmwerterError> {
     if externe_source_einheit == externe_ziel_einheit {
         return Ok(wert);
     }
 
-    let trait_tabelle = tools::bestimme_tabelle(&tabelle)?;
+    let trait_tabelle = tools::bestimme_tabelle(tabelle)?;
     let interne_source_einheit = match trait_tabelle.konvert_einheit(externe_source_einheit) {
         Some(einheit) => einheit,
         None => {
