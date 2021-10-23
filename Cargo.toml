@@ -2,7 +2,7 @@
 name = "umwerter"
 version = "0.1.0"
 authors = ["Ingo Buescher <gallatin@gmx.net>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 clap = "*"
