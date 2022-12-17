@@ -5,13 +5,12 @@ authors = ["Ingo Buescher <gallatin@gmx.net>"]
 edition = "2021"
 
 [dependencies]
-clap = "*"
+clap = "2"
 
 csv = "1.0.0"
 
 regex = "*"
 lazy_static = "*"
-#error-chain = "*"
 thiserror = "1.0.19"
 anyhow = "1.0"
 
