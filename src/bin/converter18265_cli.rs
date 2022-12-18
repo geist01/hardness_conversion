@@ -3,6 +3,8 @@ use umwerter::errors::UmwerterError;
 
 use anyhow::Result;
 
+// #[derive(Parser)]
+// #[command(author, version, about, long_about = None)]
 struct Config {
     source_unit : Option<String>,
     destination_unit : Option<String>,
@@ -48,6 +50,7 @@ fn read_config() -> Result<Config,UmwerterError> {
              .help("Sets the level of verbosity"))
         .arg(Arg::with_name("list")
              .short("l")
+	     .long("list")
              .multiple(false)
              .help("List the available units of the current table"))
         .get_matches();
