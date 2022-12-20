@@ -2,76 +2,50 @@ use umwerter::konstanten;
 use umwerter::errors::UmwerterError;
 
 use anyhow::Result;
+use clap::{Parser, ArgGroup};
 
-// #[derive(Parser)]
-// #[command(author, version, about, long_about = None)]
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+#[command(group(
+    ArgGroup::new("mode")
+        .required(true)
+        .args(["list", "hardnessvalue"]),
+))]
+#[command(group(
+    ArgGroup::new("mode2")
+        .requires_all(["source_unit", "destination_unit"])
+        .args(["hardnessvalue"]),
+))]
+#[command(group(
+    ArgGroup::new("mode3")
+        .conflicts_with_all(["source_unit", "destination_unit"])
+        .args(["list"]),
+))]
 struct Config {
+    hardnessvalue : Option<f64>,
+
+    #[arg(short, long)]
     source_unit : Option<String>,
+    
+    #[arg(short, long)]
     destination_unit : Option<String>,
+
+    #[arg(short, long, value_enum, default_value_t = konstanten::UmwertungsTabelle::Iso18265A1)]
     table : konstanten::UmwertungsTabelle,
-    value : Option<f64>,
+    
+    #[arg(short, long, default_value_t = false)]
     verbose : bool,
+
+    #[arg(short, long, default_value_t = false)]
     list : bool,
+
 }
 
 fn read_config() -> Result<Config,UmwerterError> {
-    use clap::{Arg, App};
-    
-    let matches = App::new("Hardness Converter 18265")
-        .version("1.0")
-        .author("IB")
-        .arg(Arg::with_name("table")
-             .short("t")
-             .long("table")
-             .value_name("table")
-             .help("Sets the table to use (default is A.1)")
-             .takes_value(true))
-        .arg(Arg::with_name("sourceunit")
-             .short("s")
-             .long("sunit")
-             .value_name("sourceunit")
-             .help("Sets the source unit to convert from")
-             .required_unless("list")
-             .takes_value(true))
-        .arg(Arg::with_name("destinationunit")
-             .short("d")
-             .long("dunit")
-             .value_name("destinationunit")
-             .help("Sets the destination unit to convert to")
-             .required_unless("list")
-             .takes_value(true))
-        .arg(Arg::with_name("value")
-             .help("Sets the input value to convert")
-             .required_unless("list")
-             .index(1))
-        .arg(Arg::with_name("verbose")
-             .short("v")
-             .multiple(false)
-             .help("Sets the level of verbosity"))
-        .arg(Arg::with_name("list")
-             .short("l")
-	     .long("list")
-             .multiple(false)
-             .help("List the available units of the current table"))
-        .get_matches();
-
-    let verbose = matches.occurrences_of("verbose") == 1;
-    let list = matches.occurrences_of("list") == 1;
-             
-    let source_unit = matches.value_of("sourceunit").map(|s| s.to_string());
-    let destination_unit = matches.value_of("destinationunit").map(|s| s.to_string());
-    let table = konstanten::UmwertungsTabelle::kurzbezeichner_to_enum(matches.value_of("table").unwrap_or(konstanten::A1));
-    
-    if table.is_none() {
-        return Err(UmwerterError::UmwertungstabelleUnbekannt(matches.value_of("table").unwrap().to_string()));
-    }
-
-    let mut value:Option<f64> = None;
-    if let Some(v) = matches.value_of("value") {
-        value = Some(v.parse::<f64>()?);
-    }
-    
-    Ok(Config { source_unit, destination_unit, table : table.unwrap(), value, verbose, list })
+    let config = Config::parse();
+    println!("{:?}", config);
+    Ok(config)
 }
 
 
@@ -87,7 +61,7 @@ fn convert(config : Config) {
     let destination_unit = config.destination_unit.unwrap();
     
     match umwerter::werte_um(
-        config.value.unwrap(),
+        config.hardnessvalue.unwrap(),
         &source_unit,
         &destination_unit,
         config.table
