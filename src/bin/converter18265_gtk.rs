@@ -1,4 +1,4 @@
-use gio::{ApplicationExt, ApplicationExtManual };
+use gio::prelude::{ApplicationExt, ApplicationExtManual };
 
 use gtk::prelude::*;
 use gtk::{
@@ -7,7 +7,6 @@ use gtk::{
 };
 
 use std::sync::{Arc, Mutex};
-use std::env::args;
 
 use umwerter::konstanten::UmwertungsTabelle;
 use umwerter::errors::UmwerterError;
@@ -42,33 +41,33 @@ impl Content {
 
         
         // Units
-        let cb_source_units_label = Label::new("Source Unit");
+        let cb_source_units_label = Label::new(Some("Source Unit"));
         cb_source_units_label.set_xalign(0.0);
         let cb_source_units_value = ComboBoxText::new();
 
-        let cb_destination_units_label = Label::new("Destination Unit");
+        let cb_destination_units_label = Label::new(Some("Destination Unit"));
         cb_destination_units_label.set_xalign(0.0);
         let cb_destination_units_value = ComboBoxText::new();
 
         
         // Result
-        let content = TextBuffer::new(None);
-        let content_view = TextView::new_with_buffer(&content);
-        let content_scroller = ScrolledWindow::new(None, None);
+        let content = gtk::builders::TextBufferBuilder::new().build();
+        let content_view = TextView::with_buffer(&content);
+        let content_scroller = gtk::builders::ScrolledWindowBuilder::new().build();
 
 
         // Menu
         let menu_bar = MenuBar::new();
         
-        let app_menu_label = MenuItem::new_with_label("Program");
+        let app_menu_label = MenuItem::with_label("Program");
         let app_menu = Menu::new();
-        let app_menu_quit_item = MenuItem::new_with_label("Quit");
+        let app_menu_quit_item = MenuItem::with_label("Quit");
         app_menu_quit_item.connect_activate(clone!(window => move |_| {
-            window.destroy();
+            unsafe { window.destroy(); }
         }));
 
         window.connect_delete_event(clone!(window => move |_, _| {
-            window.destroy();
+            unsafe { window.destroy(); }
             Inhibit(false)
         }));
 
@@ -76,9 +75,9 @@ impl Content {
         app_menu.append(&app_menu_quit_item);
         app_menu_label.set_submenu(Some(&app_menu));
         
-        let options_menu_label = MenuItem::new_with_label("Options");
+        let options_menu_label = MenuItem::with_label("Options");
         let options_menu = Menu::new();
-        let options_menu_verbose_item = CheckMenuItem::new_with_label("Verbose");
+        let options_menu_verbose_item = CheckMenuItem::with_label("Verbose");
         options_menu_verbose_item.set_active(true);        
         options_menu.append(&options_menu_verbose_item);
         options_menu_label.set_submenu(Some(&options_menu));
@@ -94,9 +93,9 @@ impl Content {
         let mut last_rb : Option<RadioButton> = None;
         for table in UmwertungsTabelle::bezeichner().iter() {            
             let rb = if let Some(widget) = last_rb  {
-                RadioButton::new_with_label_from_widget(&widget, table)
+                RadioButton::with_label_from_widget(&widget, table)
             } else {
-                RadioButton::new_with_label(table)
+                RadioButton::with_label(table)
             };
 
             // The only thing that you need to be aware of is that you will need to increment
@@ -107,7 +106,7 @@ impl Content {
                                (cb_source_units_value, cb_destination_units_value,
                                 current_umwerter => move |widget| {
                                     
-                let umwerter = UmwertungsTabelle::bezeichner_to_enum(&widget.get_label().unwrap()[..]);
+                let umwerter = UmwertungsTabelle::bezeichner_to_enum(&widget.label().unwrap()[..]);
                 if let Some(umwerter_trait) = umwerter {
                     {
                         let einheiten = &umwerter::bestimme_einheiten(umwerter_trait);
@@ -130,7 +129,7 @@ impl Content {
         Content::update_einheiten(&cb_destination_units_value, einheiten);
 
         // Value Field
-        let e_input_label = Label::new("Value");
+        let e_input_label = Label::new(Some("Value"));
         e_input_label.set_xalign(0.0);
         let e_input_value = Entry::new();
 
@@ -143,26 +142,25 @@ impl Content {
             current_umwerter,
             options_menu_verbose_item,
             content => move |_| {
-                let eingabe = e_input_value.get_text();
-                if let Some(s) = eingabe.clone() {
-                    if s == "" {
-                        content.set_text("No value to convert");
-                        return;
-                    }
+                let eingabe = e_input_value.text();
+                let s = eingabe.clone();
+                if s.is_empty() {
+                    content.set_text("No value to convert");
+                    return;
                 }
-                
-                let parse_ergebnis = eingabe.clone().unwrap().parse::<f64>();
+		
+                let parse_ergebnis = eingabe.clone().parse::<f64>();
                 if parse_ergebnis.is_err() {
-                    content.set_text(&format!("Invalid value: {}", eingabe.unwrap()));
+                    content.set_text(&format!("Invalid value: {}", eingabe));
                     return;
                 }
 
-                if cb_source_units_value.get_active_text().is_none() {
+                if cb_source_units_value.active_text().is_none() {
                     content.set_text("Please select source unit");
                     return;
                 }
             
-                if cb_destination_units_value.get_active_text().is_none() {
+                if cb_destination_units_value.active_text().is_none() {
                     content.set_text("Please select destination unit");
                     return;
                 }
@@ -170,20 +168,20 @@ impl Content {
                 let umwerter_tabelle = *current_umwerter.lock().unwrap();
                 match umwerter::werte_um(
                     parse_ergebnis.unwrap(),
-                    &cb_source_units_value.get_active_text().unwrap(),
-                    &cb_destination_units_value.get_active_text().unwrap(),
+                    &cb_source_units_value.active_text().unwrap(),
+                    &cb_destination_units_value.active_text().unwrap(),
                     umwerter_tabelle
                 ) {
                     Ok(erg) => {
                         let bezeichner = UmwertungsTabelle::enum_to_kurzbezeichner(umwerter_tabelle);
 
-                        if options_menu_verbose_item.get_active() {
+                        if options_menu_verbose_item.is_active() {
                             content.set_text(
                                 &format!("{0:.2} {1} - {2} - {3}",
                                          erg,
-                                         &cb_destination_units_value.get_active_text().unwrap(),
+                                         &cb_destination_units_value.active_text().unwrap(),
                                          bezeichner,
-                                         &cb_source_units_value.get_active_text().unwrap()
+                                         &cb_source_units_value.active_text().unwrap()
                                 )
                             );
                         } else {
@@ -195,8 +193,8 @@ impl Content {
                             UmwerterError::QuellWertAusserhalbUmwertungsnorm(wert) |
                             UmwerterError::ZielWertAusserhalbUmwertungsnorm(wert) =>
                                 content.set_text(&format!("Conversion {0} {1} -> {2} not defined", wert,
-                                                          &cb_source_units_value.get_active_text().unwrap(),
-                                                          &cb_destination_units_value.get_active_text().unwrap())),
+                                                          &cb_source_units_value.active_text().unwrap(),
+                                                          &cb_destination_units_value.active_text().unwrap())),
                             _ => {},
                         }
                     }
@@ -250,13 +248,12 @@ fn build_ui(application: &gtk::Application) {
 }
 
 fn main() {
-    let application = gtk::Application::new("com.cybernetics.umwerter", gio::ApplicationFlags::empty())
-        .expect("Initialization failed...");
+    let application = gtk::Application::new(Some("com.cybernetics.umwerter"), gio::ApplicationFlags::empty());
 
     application.connect_startup(move |app| {
         build_ui(app);
     });
     application.connect_activate(|_| {});
 
-    application.run(&args().collect::<Vec<_>>());
+    application.run();
 }

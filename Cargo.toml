@@ -14,8 +14,8 @@ lazy_static = "*"
 thiserror = "1.0.19"
 anyhow = "1.0"
 
-#gtk = { version = "0.16.0", features = ["v3_24"] }
-#gio = "0.16.0"
+gtk = { version = "0.16.0", features = ["v3_24"] }
+gio = "0.16.0"
 
-gtk = { version = "0.3.0", features = ["v3_22"] }
-gio = "0.3.0"
+#gtk = { version = "0.3.0", features = ["v3_22"] }
+#gio = "0.3.0"
