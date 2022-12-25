@@ -1,39 +1,20 @@
-use gio::prelude::{ApplicationExt, ApplicationExtManual };
-
+use gio::prelude::*;
 use gtk::prelude::*;
 use gtk::{
     MenuItem, Grid, Label, ComboBoxText, TextView, TextBuffer, ScrolledWindow,
     MenuBar, Menu, RadioButton, ApplicationWindow, WindowPosition, CheckMenuItem, Entry, LinkButton
 };
+use glib::clone;
 
 use std::sync::{Arc, Mutex};
 
 use umwerter::konstanten::UmwertungsTabelle;
 use umwerter::errors::UmwerterError;
 
-
-macro_rules! clone {
-    (@param _) => ( _ );
-    (@param $x:ident) => ( $x );
-    ($($n:ident),+ => move || $body:expr) => (
-        {
-            $( let $n = $n.clone(); )+
-            move || $body
-        }
-    );
-    ($($n:ident),+ => move |$($p:tt),+| $body:expr) => (
-        {
-            $( let $n = $n.clone(); )+
-            move |$(clone!(@param $p),)+| $body
-        }
-    );
-}
-
-
 pub struct Content;
 
 impl Content {
-    fn new(window : &ApplicationWindow) -> Grid {
+    fn create_grid(window : &ApplicationWindow) -> Grid {
         let current_umwerter = Arc::new(Mutex::new(UmwertungsTabelle::Iso18265A1));
 
         let mut row = 0;
@@ -51,9 +32,9 @@ impl Content {
 
         
         // Result
-        let content = gtk::builders::TextBufferBuilder::new().build();
+        let content = TextBuffer::builder().build();
         let content_view = TextView::with_buffer(&content);
-        let content_scroller = gtk::builders::ScrolledWindowBuilder::new().build();
+        let content_scroller = ScrolledWindow::builder().build();
 
 
         // Menu
@@ -62,12 +43,12 @@ impl Content {
         let app_menu_label = MenuItem::with_label("Program");
         let app_menu = Menu::new();
         let app_menu_quit_item = MenuItem::with_label("Quit");
-        app_menu_quit_item.connect_activate(clone!(window => move |_| {
-            unsafe { window.destroy(); }
+        app_menu_quit_item.connect_activate(clone!(@strong window => move |_| {
+	    window.close();
         }));
 
-        window.connect_delete_event(clone!(window => move |_, _| {
-            unsafe { window.destroy(); }
+        window.connect_delete_event(clone!(@strong window => move |_, _| {
+	    window.close();
             Inhibit(false)
         }));
 
@@ -103,8 +84,8 @@ impl Content {
             // which is done by cloning the object.
             
             rb.connect_clicked(clone!
-                               (cb_source_units_value, cb_destination_units_value,
-                                current_umwerter => move |widget| {
+                               (@strong cb_source_units_value, @strong cb_destination_units_value,
+                                @strong current_umwerter => move |widget| {
                                     
                 let umwerter = UmwertungsTabelle::bezeichner_to_enum(&widget.label().unwrap()[..]);
                 if let Some(umwerter_trait) = umwerter {
@@ -137,11 +118,11 @@ impl Content {
         // Conversion action
         let lb_current_dest = LinkButton::new("Convert");
         lb_current_dest.connect_clicked(clone!(
-            e_input_value,
-            cb_source_units_value, cb_destination_units_value,
-            current_umwerter,
-            options_menu_verbose_item,
-            content => move |_| {
+            @strong e_input_value,
+            @strong cb_source_units_value, @strong cb_destination_units_value,
+            @strong current_umwerter,
+            @strong options_menu_verbose_item,
+            @strong content => move |_| {
                 let eingabe = e_input_value.text();
                 let s = eingabe.clone();
                 if s.is_empty() {
@@ -149,7 +130,7 @@ impl Content {
                     return;
                 }
 		
-                let parse_ergebnis = eingabe.clone().parse::<f64>();
+                let parse_ergebnis = eingabe.parse::<f64>();
                 if parse_ergebnis.is_err() {
                     content.set_text(&format!("Invalid value: {}", eingabe));
                     return;
@@ -240,7 +221,7 @@ fn build_ui(application: &gtk::Application) {
     window.set_position(WindowPosition::Center);
     window.set_size_request(300, 360);
 
-    let content = Content::new(&window);
+    let content = Content::create_grid(&window);
     window.add(&content);
 
     window.show_all();

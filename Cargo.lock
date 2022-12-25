@@ -831,6 +831,7 @@ dependencies = [
  "clap",
  "csv",
  "gio",
+ "glib",
  "gtk",
  "lazy_static",
  "regex",
