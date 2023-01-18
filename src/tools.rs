@@ -4,6 +4,11 @@ use regex::Regex;
 
 use crate::umwerter_tabelle_18265_a1::UmwerterTabelle18265A1;
 use crate::umwerter_tabelle_18265_b2::UmwerterTabelle18265B2;
+use crate::umwerter_tabelle_18265_b3::UmwerterTabelle18265B3;
+use crate::umwerter_tabelle_18265_b4::UmwerterTabelle18265B4;
+use crate::umwerter_tabelle_18265_c2::UmwerterTabelle18265C2;
+use crate::umwerter_tabelle_18265_d2::UmwerterTabelle18265D2;
+use crate::umwerter_tabelle_18265_f2::UmwerterTabelle18265F2;
 use crate::konstanten::UmwertungsTabelle;
 use crate::Umwerter;
 use crate::UmwerterError;
@@ -21,6 +26,26 @@ pub fn bestimme_tabelle<'a>(tabelle: UmwertungsTabelle) -> Result<Box<dyn Umwert
         }
         UmwertungsTabelle::Iso18265B2 => {
             let trait_tabelle = UmwerterTabelle18265B2::new()?;
+            Ok(Box::new(trait_tabelle))
+        }
+        UmwertungsTabelle::Iso18265B3 => {
+            let trait_tabelle = UmwerterTabelle18265B3::new()?;
+            Ok(Box::new(trait_tabelle))
+        }
+        UmwertungsTabelle::Iso18265B4 => {
+            let trait_tabelle = UmwerterTabelle18265B4::new()?;
+            Ok(Box::new(trait_tabelle))
+        }
+        UmwertungsTabelle::Iso18265C2 => {
+            let trait_tabelle = UmwerterTabelle18265C2::new()?;
+            Ok(Box::new(trait_tabelle))
+        }
+        UmwertungsTabelle::Iso18265D2 => {
+            let trait_tabelle = UmwerterTabelle18265D2::new()?;
+            Ok(Box::new(trait_tabelle))
+        }
+        UmwertungsTabelle::Iso18265F2 => {
+            let trait_tabelle = UmwerterTabelle18265F2::new()?;
             Ok(Box::new(trait_tabelle))
         }
     }

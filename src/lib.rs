@@ -1,6 +1,11 @@
 mod trait_umwerter;
 mod umwerter_tabelle_18265_a1;
 mod umwerter_tabelle_18265_b2;
+mod umwerter_tabelle_18265_b3;
+mod umwerter_tabelle_18265_b4;
+mod umwerter_tabelle_18265_c2;
+mod umwerter_tabelle_18265_d2;
+mod umwerter_tabelle_18265_f2;
 mod tools;
 
 use konstanten::UmwertungsTabelle;

@@ -5,20 +5,20 @@ use std::vec::Vec;
 use crate::tools;
 use crate::errors::UmwerterError;
 
-pub struct UmwerterTabelle18265B2<'a> {
+pub struct UmwerterTabelle18265B3<'a> {
     daten: Vec<HashMap<&'a str, f64>>,
 }
 
-impl<'a> UmwerterTabelle18265B2<'a> {
-    pub fn new() -> Result<UmwerterTabelle18265B2<'a>,UmwerterError> {
-        let mut tabelle = UmwerterTabelle18265B2 { daten: Vec::new() };
-        let csv_data = include_str!("18265_B2.csv");
+impl<'a> UmwerterTabelle18265B3<'a> {
+    pub fn new() -> Result<UmwerterTabelle18265B3<'a>,UmwerterError> {
+        let mut tabelle = UmwerterTabelle18265B3 { daten: Vec::new() };
+        let csv_data = include_str!("18265_B3.csv");
         tools::initialize(&tabelle.interne_einheiten(), &mut tabelle.daten, csv_data)?;
         Ok(tabelle)
     }
 }
 
-impl<'a> Umwerter<'a> for UmwerterTabelle18265B2<'a> {
+impl<'a> Umwerter<'a> for UmwerterTabelle18265B3<'a> {
     fn data(&self) -> &Vec<HashMap<&'a str, f64>> {
         &self.daten
     }
@@ -31,7 +31,7 @@ impl<'a> Umwerter<'a> for UmwerterTabelle18265B2<'a> {
 
     fn interne_einheiten(&self) -> Vec<&'a str> {
         vec![
-            "hv", "hbw", "hrc", "hra", "hr45n", "hr30n", "hr15n", "hrb", "hr45t", "hr30t",
+            "hv", "hbw", "hrc", "hra", "hr45n", "hr30n", "hr15n", "hrb", "hrf", "hr45t", "hr30t",
             "hr15t", "mpa",
         ]
     }
