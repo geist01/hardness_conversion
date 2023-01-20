@@ -44,7 +44,7 @@ struct Config {
 
 fn read_config() -> Result<Config,UmwerterError> {
     let config = Config::parse();
-    println!("{:?}", config);
+    // println!("{:?}", config);
     Ok(config)
 }
 

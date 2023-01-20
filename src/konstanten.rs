@@ -61,8 +61,6 @@ impl UmwertungsTabelle {
             C2_LANG => Some(UmwertungsTabelle::Iso18265C2),
             D2_LANG => Some(UmwertungsTabelle::Iso18265D2),
             F2_LANG => Some(UmwertungsTabelle::Iso18265F2),
-
-
             _ => None,
         }
     }
@@ -76,8 +74,6 @@ impl UmwertungsTabelle {
             C2 => Some(UmwertungsTabelle::Iso18265C2),
             D2 => Some(UmwertungsTabelle::Iso18265D2),
             F2 => Some(UmwertungsTabelle::Iso18265F2),
-
-
             _ => None,
         }
     }

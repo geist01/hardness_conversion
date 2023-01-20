@@ -31,7 +31,7 @@ impl<'a> Umwerter<'a> for UmwerterTabelle18265F2<'a> {
 
     fn interne_einheiten(&self) -> Vec<&'a str> {
         vec![
-            "hv", "hrb", "hrf", "hra", "hr15t", "hr30t", "hr45t", "hbw", 
+            "hv", "hrb", "hrf", "hr15t", "hr30t", "hr45t", "hbw", 
         ]
     }
 }
